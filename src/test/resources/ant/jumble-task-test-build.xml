@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- TODO: a way to make basedir not relative like this? -->
+<project name="jumble-task-test" basedir="../../..">
+    <description>
+        Contains targets used to test the Jumble Ant task
+    </description>
+
+    <property file="${basedir}/target/test-classes/ant/jumble-task-test-build.properties"/>
+    <property name="classes.dir" value="${basedir}/target/classes"/>
+    <property name="test.classes.dir" value="${basedir}/target/test-classes"/>
+
+    <path id="jumble.ant.task.classpath">
+        <pathelement location="${classes.dir}"/>
+    </path>
+
+    <path id="jumble.test.classpath.arg">
+        <pathelement location="${test.classes.dir}"/>
+    </path>
+
+    <taskdef name="jumble"
+        classname="com.reeltwo.jumble.buildhelpers.ant.JumbleTask"
+        classpathref="jumble.ant.task.classpath"/>
+
+    <target name="init">
+        <tstamp/>
+    </target>
+
+    <target name="no-jumble-jar-set">
+        <jumble>
+            <targetclasses dir="${test.classes.dir}" includes="**/WellTested.class"/>
+        </jumble>
+    </target>
+
+    <target name="no-target-classes-specified">
+        <jumble jar="${jumble.jar}"/>
+    </target>
+
+    <target name="no-target-classes-detected">
+        <jumble jar="${jumble.jar}">
+            <targetclasses dir="${test.classes.dir}" includes="**/WhereAmI.class"/>
+        </jumble>
+    </target>
+
+    <target name="minimum-legal-configuration">
+        <jumble jar="${jumble.jar}">
+            <targetclasses dir="${test.classes.dir}" includes="**/WellTested.class"/>
+            <classpath refid="jumble.test.classpath.arg"/>
+        </jumble>
+    </target>
+
+    <target name="minimum-legal-configuration-with-tests">
+        <jumble jar="${jumble.jar}">
+            <targetclasses dir="${test.classes.dir}" includes="**/WellTested.class"/>
+            <testclasses dir="${test.classes.dir}"
+                 includes="**/WhenTestingWellTested.class"/>
+            <classpath refid="jumble.test.classpath.arg"/>
+        </jumble>
+    </target>
+
+    <target name="non-existent-output-directory">
+        <jumble jar="${jumble.jar}"
+            outputdir="${basedir}/where-am-i">
+            <targetclasses dir="${test.classes.dir}" includes="**/WellTested.class"/>
+            <classpath refid="jumble.test.classpath.arg"/>
+        </jumble>
+    </target>
+
+    <target name="non-writable-output-directory">
+        <mkdir dir="${java.io.tmpdir}/non-writable"/>
+        <chmod file="${java.io.tmpdir}/non-writable" type="dir" perm="a-w"/>
+        <jumble jar="${jumble.jar}"
+            outputdir="${java.io.tmpdir}/non-writable">
+            <targetclasses dir="${test.classes.dir}" includes="**/WellTested.class"/>
+            <classpath refid="jumble.test.classpath.arg"/>
+        </jumble>
+    </target>
+
+    <target name="output-directory-not-a-directory">
+        <jumble jar="${jumble.jar}"
+            outputdir="${ant.file}">
+            <targetclasses dir="${test.classes.dir}" includes="**/WellTested.class"/>
+            <classpath refid="jumble.test.classpath.arg"/>
+        </jumble>
+    </target>
+
+    <target name="output-directory-specified">
+        <jumble jar="${jumble.jar}"
+            outputdir="${java.io.tmpdir}">
+            <targetclasses dir="${test.classes.dir}" includes="**/WellTested.class"/>
+            <testclasses dir="${test.classes.dir}"
+                 includes="**/WhenTestingWellTested.class"/>
+            <classpath refid="jumble.test.classpath.arg"/>
+        </jumble>
+    </target>
+
+    <target name="exclude-methods-attribute">
+        <jumble jar="${jumble.jar}"
+            excludemethods="wait,notify,notifyAll">
+            <targetclasses dir="${test.classes.dir}" includes="**/WellTested.class"/>
+            <testclasses dir="${test.classes.dir}"
+                 includes="**/WhenTestingWellTested.class"/>
+            <classpath refid="jumble.test.classpath.arg"/>
+        </jumble>
+    </target>
+
+    <target name="class-threshold-met-single">
+        <jumble jar="${jumble.jar}" classthreshold="0">
+            <targetclasses dir="${test.classes.dir}" includes="**/WellTested.class"/>
+            <testclasses dir="${test.classes.dir}"
+                 includes="**/WhenTestingWellTested.class"/>
+            <classpath refid="jumble.test.classpath.arg"/>
+        </jumble>
+    </target>
+
+    <target name="class-threshold-not-met-single">
+        <jumble jar="${jumble.jar}" classthreshold="100">
+            <targetclasses dir="${test.classes.dir}" includes="**/WellTested.class"/>
+            <testclasses dir="${test.classes.dir}"
+                includes="**/WhenTestingWellTested.class"/>
+            <classpath refid="jumble.test.classpath.arg"/>
+        </jumble>
+    </target>
+
+    <target name="class-threshold-met-multiple">
+        <jumble jar="${jumble.jar}" classthreshold="50">
+            <targetclasses dir="${test.classes.dir}"
+                includes="**/WellTested.class,**/CompletelyTested.class"/>
+            <testclasses dir="${test.classes.dir}"
+                 includes="**/WhenTestingWellTested.class,**/WhenTestingCompletelyTested.class"/>
+            <classpath refid="jumble.test.classpath.arg"/>
+        </jumble>
+    </target>
+
+    <target name="class-threshold-not-met-most">
+        <jumble jar="${jumble.jar}" classthreshold="90">
+            <targetclasses dir="${test.classes.dir}"
+                includes="**/WellTested.class,**/CompletelyTested.class,**/NotTested.class"/>
+            <testclasses dir="${test.classes.dir}"
+                 includes="**/WhenTestingWellTested.class,**/WhenTestingCompletelyTested.class"/>
+            <classpath refid="jumble.test.classpath.arg"/>
+        </jumble>
+    </target>
+</project>
